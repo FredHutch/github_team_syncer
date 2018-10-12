@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# source me with . setup.sh
+
+export GITHUB_TOKEN="my-github-token"
+export GITHUB_ORG="my-github-org"

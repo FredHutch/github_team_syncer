@@ -1,0 +1,28 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+flask = "*"
+"boto3" = "*"
+flask-restful = "*"
+hammock = "*"
+requests = "*"
+ipaddress = "*"
+
+
+[dev-packages]
+
+pylint = "*"
+black = "*"
+ipython = "*"
+pipenv = "*"
+
+
+[requires]
+
+python_version = "3.6"
