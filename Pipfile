@@ -13,6 +13,7 @@ flask-restful = "*"
 hammock = "*"
 requests = "*"
 ipaddress = "*"
+zappa = "*"
 
 
 [dev-packages]
