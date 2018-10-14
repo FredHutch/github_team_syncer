@@ -96,6 +96,11 @@ class TeamSyncer(Resource):
                 return {'message': 'u r not authorized'}
         else:
             return {'message': 'u r not authorized'}
+        if not 'action' in obj:
+            if 'zen' in obj:
+                return {'message': 'how zen of you'}
+            return {'message': 'this is not an event we care about'}
+
         if not obj["action"] in ["member_added", "member_removed"]:
             return {"message": "ignoring the {} action".format(obj["action"])}
         adding = obj["action"] == "member_added"
@@ -118,12 +123,12 @@ class TeamSyncer(Resource):
                     )
                 }
             else:
-                result = requests.put(
+                requests.put(
                     str(GITHUB.teams(team["id"]).memberships(login)), headers=HEADERS
                 )
         else:
             if login in membernames:
-                result = requests.delete(
+                requests.delete(
                     str(GITHUB.teams(team["id"]).memberships(login)), headers=HEADERS
                 )
             else:
@@ -141,4 +146,4 @@ API.add_resource(TeamSyncer, "/")
 if __name__ == "__main__":
     verify_env_vars()
     setup_headers()
-    APP.run(debug=True)  # TODO Change debug to False in production.
+    APP.run(debug=False)  # TODO Change debug to True for testing.
