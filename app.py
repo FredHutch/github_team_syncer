@@ -22,7 +22,7 @@ API = Api(APP)
 GITHUB = Github("https://api.github.com")
 
 
-CFG = {}
+# CFG = {}
 
 
 def verify_env_vars():
@@ -32,8 +32,8 @@ def verify_env_vars():
         if not tmp:
             print("Environment variable {} not set! Exiting.".format(var))
             sys.exit(1)
-        else:
-            CFG[var] = tmp
+        # else:
+        #     CFG[var] = tmp
 
 
 HEADERS = {}
@@ -41,7 +41,7 @@ HEADERS = {}
 
 def setup_headers():
     "set up headers"
-    HEADERS["Authorization"] = "token {}".format(CFG["GITHUB_TOKEN"])
+    HEADERS["Authorization"] = "token {}".format(os.getenv("GITHUB_TOKEN"))
     HEADERS["Accept"] = "application/vnd.github.hellcat-preview+json"
 
 
@@ -105,21 +105,21 @@ class TeamSyncer(Resource):
             return {"message": "ignoring the {} action".format(obj["action"])}
         adding = obj["action"] == "member_added"
         login = obj["membership"]["user"]["login"]
-
-        teams = get_paginated_results(str(GITHUB.orgs(CFG["GITHUB_ORG"]).teams))
+        os.getenv("GITHUB_ORG")
+        teams = get_paginated_results(str(GITHUB.orgs(os.getenv("GITHUB_ORG")).teams))
         team = None
         for ateam in teams:
-            if ateam["name"] == CFG["GITHUB_TEAM"]:
+            if ateam["name"] == os.getenv("GITHUB_TEAM"):
                 team = ateam
         if not team:
-            return {"message": "there is no {} team.".format(CFG["GITHUB_TEAM"])}
+            return {"message": "there is no {} team.".format(os.getenv("GITHUB_TEAM"))}
         members = get_paginated_results(str(GITHUB.teams(team["id"]).members))
         membernames = [x["login"] for x in members]
         if adding:
             if login in membernames:
                 return {
                     "message": "{} is already a member of {}".format(
-                        login, CFG["GITHUB_TEAM"]
+                        login, os.getenv("GITHUB_TEAM")
                     )
                 }
             else:
@@ -134,7 +134,7 @@ class TeamSyncer(Resource):
             else:
                 return {
                     "message": "{} is not a member of {}".format(
-                        login, CFG["GITHUB_TEAM"]
+                        login, os.getenv("GITHUB_TEAM")
                     )
                 }
 
