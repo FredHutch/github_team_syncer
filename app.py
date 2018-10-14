@@ -71,10 +71,8 @@ class TeamSyncer(Resource):
 
     def post(self):  # pylint: disable=no-self-use
         "POST method"
-        forwarded_for = u'{}'.format(request.headers.get('HTTP_X_FORWARDED_FOR'))
+        forwarded_for = u'{}'.format(request.headers.get('X-Forwarded-For'))
         ip = request.remote_addr # pylint: disable=invalid-name
-        print("ip is {}".format(ip))
-        print("forwarded_for: {}".format(forwarded_for))
         obj = request.get_json()
 
         # check to make sure request originates from localhost or a github ip
@@ -82,11 +80,17 @@ class TeamSyncer(Resource):
         if ip == "127.0.0.1":
             pass # ok, we are developing
         elif forwarded_for:
-            whitelist = requests.get(str(GITHUB.meta)).json()['hooks']
-            client_ip_address = ip_address(forwarded_for)
+            addrs = forwarded_for.split(", ")
 
-            for valid_ip in whitelist:
-                if client_ip_address in ip_network(valid_ip):
+            whitelist = requests.get(str(GITHUB.meta)).json()['hooks']
+
+            for addr in addrs:
+                client_ip_address = ip_address(addr)
+
+                for valid_ip in whitelist:
+                    if client_ip_address in ip_network(valid_ip):
+                        break
+                else:
                     break
             else:
                 return {'message': 'u r not authorized'}
@@ -117,14 +121,11 @@ class TeamSyncer(Resource):
                 result = requests.put(
                     str(GITHUB.teams(team["id"]).memberships(login)), headers=HEADERS
                 )
-                print(result.status_code)
-                print(result.json())
         else:
             if login in membernames:
                 result = requests.delete(
                     str(GITHUB.teams(team["id"]).memberships(login)), headers=HEADERS
                 )
-                print(result.status_code)
             else:
                 return {
                     "message": "{} is not a member of {}".format(
