@@ -1,5 +1,5 @@
 {
-  "action": "member_added",
+  "action": "member_removed",
   "membership": {
     "url": "https://api.github.com/orgs/Octocoders/memberships/hacktocat",
     "state": "pending",
