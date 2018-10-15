@@ -25,8 +25,7 @@ GITHUB = Github("https://api.github.com")
 def verify_env_vars():
     "verify correct env vars are set"
     for var in ["GITHUB_TOKEN", "GITHUB_ORG", "GITHUB_TEAM"]:
-        tmp = os.getenv(var)
-        if not tmp:
+        if not os.getenv(var):
             print("Environment variable {} not set! Exiting.".format(var))
             sys.exit(1)
 
@@ -37,10 +36,6 @@ def get_headers():
     headers["Authorization"] = "token {}".format(os.getenv("GITHUB_TOKEN"))
     headers["Accept"] = "application/vnd.github.hellcat-preview+json"
     return headers
-
-
-def setup_headers():
-    "set up headers"
 
 
 def get_paginated_results(url, delay=0.3):
@@ -96,7 +91,7 @@ def is_authenticated(req):
 class TeamSyncer(Resource):
     "REST resource"
 
-    def post(self):  # pylint: disable=no-self-use
+    def post(self):  # pylint: disable=no-self-use, too-many-return-statements
         "POST method"
         if not is_authenticated(request):
             return {"message": "you are not authorized"}
@@ -128,11 +123,9 @@ class TeamSyncer(Resource):
                         login, os.getenv("GITHUB_TEAM")
                     )
                 }
-            else:
-                requests.put(
-                    str(GITHUB.teams(team["id"]).memberships(login)),
-                    headers=get_headers(),
-                )
+            requests.put(
+                str(GITHUB.teams(team["id"]).memberships(login)), headers=get_headers()
+            )
         else:
             if login in membernames:
                 requests.delete(
@@ -153,5 +146,4 @@ API.add_resource(TeamSyncer, "/")
 
 if __name__ == "__main__":
     verify_env_vars()
-    setup_headers()
     APP.run(debug=False)  # Change debug to True for testing.
