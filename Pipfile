@@ -1,12 +1,9 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-
 flask = "*"
 "boto3" = "*"
 flask-restful = "*"
@@ -15,15 +12,15 @@ requests = "*"
 ipaddress = "*"
 zappa = "*"
 
-
 [dev-packages]
-
 pylint = "*"
 black = "*"
 ipython = "*"
 pipenv = "*"
-
+rope = "*"
 
 [requires]
-
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true

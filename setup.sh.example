@@ -4,3 +4,4 @@
 
 export GITHUB_TOKEN="my-github-token"
 export GITHUB_ORG="my-github-org"
+export GITHUB_TEAM="my-github-team"

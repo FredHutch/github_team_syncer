@@ -64,53 +64,44 @@ def get_paginated_results(url, delay=0.3):
     return all_results
 
 
+def is_valid_ip(ip):  # pylint: disable=invalid-name
+    "does request originate from a valid IP"
+    whitelist = requests.get(str(GITHUB.meta)).json()["hooks"]
+
+    client_ip_address = ip_address(ip)
+
+    for valid_ip in whitelist:
+        if client_ip_address in ip_network(valid_ip):
+            return True
+    return False
+
+
+def is_authenticated(req):
+    "make sure request comes from a valid IP"
+    forwarded_for = u"{}".format(req.headers.get("X-Forwarded-For"))
+    ip = req.remote_addr  # pylint: disable=invalid-name
+    if ip == "127.0.0.1":
+        return True
+    if not forwarded_for:
+        return False
+    addrs = forwarded_for.split(", ")
+    if len(addrs) > 1:
+        addrs = addrs[-2 : len(addrs)]  # removes spoofers
+    for addr in addrs:
+        if is_valid_ip(addr):
+            return True
+    return False
+
+
 class TeamSyncer(Resource):
     "REST resource"
 
     def post(self):  # pylint: disable=no-self-use
         "POST method"
-        forwarded_for = u"{}".format(request.headers.get("X-Forwarded-For"))
-        print("forwarded_for is {}".format(forwarded_for))
-        ip = request.remote_addr  # pylint: disable=invalid-name
+        if not is_authenticated(request):
+            return {"message": "you are not authorized"}
         obj = request.get_json()
 
-        # check to make sure request originates from localhost or a github ip
-        # ideally we should be using a secret token as well.
-        # if ip == "127.0.0.1": # FIXME UNCOMMENT THIS BIT
-        #     print("we are localhost")
-            # pass # ok, we are developing TODO FIXME uncomment
-        if forwarded_for:
-            addrs = forwarded_for.split(", ")
-
-            whitelist = requests.get(str(GITHUB.meta)).json()["hooks"]
-
-            for addr in addrs:
-                print("addr is {}".format(addr))
-                client_ip_address = ip_address(addr)
-
-                for valid_ip in whitelist:
-                    if client_ip_address in ip_network(valid_ip):
-                        print(
-                            "client ip address {} is in ip_network {}".format(
-                                client_ip_address, valid_ip
-                            )
-                        )
-                        break
-                else: # if there was no break
-                    print(
-                        "no valid ip in whitelist segment {} for {}".format(
-                            whitelist, client_ip_address
-                        )
-                    )
-                    # break
-            else: # if there was no break
-                print("no valid ip in any of the provided ips")
-                return {"message": "u r not authorized"}
-        else:
-            print("forwarded_for is not set, exiting")
-            return {"message": "u r not authorized"}
-        if True:
-            return {'message': 'premature exit FIXME'}
         if not "action" in obj:
             if "zen" in obj:
                 return {"message": "how zen of you"}
@@ -163,4 +154,4 @@ API.add_resource(TeamSyncer, "/")
 if __name__ == "__main__":
     verify_env_vars()
     setup_headers()
-    APP.run(debug=True)  # FIXME  TODO Change debug to True for testing.
+    APP.run(debug=False)  # Change debug to True for testing.
