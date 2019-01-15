@@ -1,4 +1,5 @@
 [[source]]
+glob = "*"
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
@@ -8,9 +9,10 @@ flask = "*"
 "boto3" = "*"
 flask-restful = "*"
 hammock = "*"
-requests = "*"
+requests = "==2.20.0"
 ipaddress = "*"
-zappa = "*"
+pyyaml = ">=4.02b1"
+zappa = {editable = true,git = "https://github.com/dtenenba/Zappa"}
 
 [dev-packages]
 pylint = "*"
